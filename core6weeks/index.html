@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>자세 교정·코어 입문 6주 프로그램</title>
+<meta name="robots" content="noindex">
+<!--
+  ☠️ 왜 이 페이지가 있나 (2026-10-08)
+
+  스레드 DM 으로 네이버 카페 글 링크를 보냈더니 **첨부파일이 안 받아졌다.**
+  외부 브라우저에서 같은 주소를 열면 받아진다. 즉 스레드 «안»의 브라우저 문제다.
+
+  원인 — 네이버 카페 첨부파일 응답 헤더를 실측했다:
+      content-type: application/octet-stream     ← PDF 라고 안 알려준다
+      content-disposition: attachment            ← 「받아라」
+      x-content-type-options: nosniff            ← 브라우저의 타입 추측도 금지
+  세 개가 겹쳐서 인앱 브라우저(WebView)가 화면에 띄울 길이 없다.
+  (권한 문제가 아니다 — 비회원도 HTTP 200 으로 2,034,077바이트를 받는다)
+
+  ★ 이 페이지가 하는 일은 하나뿐이다 — **외부 브라우저로 나가는 링크를 사람이 누르게 한다.**
+
+  ☠️ 자동으로 보내지 않는다. 두 가지 이유다.
+    ① 메타 웹뷰는 **스크립트로 일으킨** 커스텀 스킴 이동을 조용히 버린다.
+       선언적으로(실제 <a> 태그 · meta refresh) 와야 처리한다.
+    ② 자동 이동은 브라우저가 둘 열리는 사고를 낸다.
+    그래서 `<a href>` 를 기기에 맞게 바꿔 두고, **누르는 것은 사람**이 한다.
+
+  스킴 — 스레드의 개발 당시 이름이 Barcelona 라서 스레드만 알아듣는다.
+      아이폰   barcelona://extbrowser/?url=<주소>   (인스타는 instagram://)
+      안드로이드 intent://…#Intent;package=com.android.chrome;S.browser_fallback_url=…;end
+
+  ⚠️ **보장되지 않는다.** 메타가 막으면 그날로 안 된다.
+     그래서 아래 「주소 복사」가 항상 보인다 — 그게 마지막 벽이다.
+-->
+<style>
+  :root {
+    --bg: #ffffff; --fg: #111418; --dim: #5b6472;
+    --line: #e3e7ec; --accent: #ff7a1a; --accentfg: #ffffff;
+    --card: #f7f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1216; --fg:#eef1f5; --dim:#9aa4b2; --line:#232a33; --card:#171c22; }
+  }
+  :root[data-theme="dark"] { --bg:#0f1216; --fg:#eef1f5; --dim:#9aa4b2; --line:#232a33; --card:#171c22; }
+  :root[data-theme="light"] { --bg:#ffffff; --fg:#111418; --dim:#5b6472; --line:#e3e7ec; --card:#f7f8fa; }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+                 "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+    line-height: 1.65; -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 440px; margin: 0 auto; padding: 32px 20px 56px; }
+
+  .kicker { font-size: 13px; color: var(--dim); letter-spacing: .02em; }
+  h1 { font-size: 23px; line-height: 1.35; margin: 6px 0 14px; letter-spacing: -.01em; }
+  .lead { font-size: 15px; color: var(--dim); margin: 0 0 26px; }
+
+  .cta {
+    display: block; width: 100%; text-align: center; text-decoration: none;
+    background: var(--accent); color: var(--accentfg);
+    font-size: 17px; font-weight: 700; padding: 17px 18px; border-radius: 13px;
+    border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .cta:active { filter: brightness(.93); }
+  .note { font-size: 13px; color: var(--dim); margin: 11px 2px 0; }
+
+  .box { margin-top: 30px; padding: 16px; background: var(--card);
+         border: 1px solid var(--line); border-radius: 12px; }
+  .box h2 { font-size: 14px; margin: 0 0 8px; }
+  .box p { font-size: 13.5px; color: var(--dim); margin: 0 0 12px; }
+
+  .url {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; color: var(--fg); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 11px; overflow-x: auto; white-space: nowrap; margin-bottom: 10px;
+  }
+  .copy {
+    width: 100%; font: inherit; font-size: 14px; font-weight: 600;
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--line); border-radius: 9px; padding: 11px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .copy:active { background: var(--card); }
+  .ok { color: var(--accent); font-weight: 700; }
+
+  ol { margin: 10px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--dim); }
+  ol li { margin: 4px 0; }
+  footer { margin-top: 34px; font-size: 12px; color: var(--dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="kicker">ROUTE</p>
+  <h1>자세 교정·코어 입문<br>6주 프로그램</h1>
+  <p class="lead">
+    날개뼈 움직임과 코어 안정성을 6주 동안 연습하는 프로그램입니다. 하루 8동작, 주 3회, 무게 없이 버티는 동작 위주입니다.
+  </p>
+
+  <a class="cta" id="go" href="https://cafe.naver.com/sd161921/21606" rel="noopener">
+    전자책 받기
+  </a>
+  <p class="note" id="note">눌러서 받는 곳으로 이동합니다.</p>
+
+  <div class="box">
+    <h2>버튼이 안 열리면</h2>
+    <p>아래 주소를 복사해서 크롬이나 사파리에 붙여 넣어 주세요.</p>
+    <div class="url" id="url">https://cafe.naver.com/sd161921/21606</div>
+    <button class="copy" id="copy">주소 복사하기</button>
+    <ol>
+      <li>크롬 또는 사파리를 엽니다</li>
+      <li>주소창에 붙여 넣습니다</li>
+      <li>글 위쪽 첨부파일을 누르면 받아집니다</li>
+    </ol>
+  </div>
+
+  <footer>주식회사 원나우 · ROUTE</footer>
+</div>
+
+<script>
+(function () {
+  var TARGET = "https://cafe.naver.com/sd161921/21606";
+  var ua = navigator.userAgent || "";
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && "ontouchend" in document);
+  var isAndroid = /Android/.test(ua);
+
+  // 메타 계열 인앱 브라우저만 탈출 스킴을 알아듣는다.
+  //   스레드 UA 에는 Barcelona, 인스타에는 Instagram 이 들어간다.
+  //   ☠️ UA 는 바뀔 수 있다. 그래서 «모르면 그냥 카페로 보낸다» — 평소 브라우저로
+  //      들어온 사람에게 먹히지도 않을 스킴을 쥐어 주면 그 사람만 막힌다.
+  //   ☠️ 2026-10-08 시험에서 잡은 것 — 페이스북 웹뷰(FBAN/FBAV)에 `barcelona://` 를
+  //      주고 있었다. 페이스북은 그 스킴을 모른다. **메타 계열이라고 한 묶음으로
+  //      묶으면 안 된다 — 스킴은 앱마다 다르다.**
+  //      그래서 «스킴을 아는 앱»만 따로 센다. 나머지는 그냥 카페로 보낸다.
+  var isThreads = /Barcelona/i.test(ua);
+  var isInsta   = /Instagram/i.test(ua);
+  var inMeta    = isThreads || isInsta;
+
+  var go = document.getElementById("go");
+  var note = document.getElementById("note");
+  var enc = encodeURIComponent(TARGET);
+
+  if (isAndroid && inMeta) {
+    // 크롬으로 넘긴다. 크롬이 없으면 S.browser_fallback_url 로 되돌아온다.
+    go.setAttribute("href",
+      "intent://cafe.naver.com/sd161921/21606#Intent;scheme=https;" +
+      "package=com.android.chrome;S.browser_fallback_url=" + enc + ";end");
+    note.textContent = "누르면 크롬에서 열립니다.";
+  } else if (isIOS && inMeta) {
+    // 스레드는 barcelona, 인스타는 instagram 스킴을 쓴다.
+    go.setAttribute("href",
+      (isInsta ? "instagram" : "barcelona") + "://extbrowser/?url=" + enc);
+    note.textContent = "누르면 사파리에서 열립니다.";
+  } else {
+    note.textContent = "눌러서 받는 곳으로 이동합니다.";
+  }
+
+  // 주소 복사 — clipboard API 가 막힌 웹뷰가 있어 구형 방식까지 받쳐 둔다.
+  var btn = document.getElementById("copy");
+  btn.addEventListener("click", function () {
+    var done = function () {
+      btn.innerHTML = '<span class="ok">복사했습니다</span>';
+      setTimeout(function () { btn.textContent = "주소 복사하기"; }, 2200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(TARGET).then(done, fallback);
+    } else { fallback(); }
+
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = TARGET;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.top = "-1000px";
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, TARGET.length);
+      try { document.execCommand("copy"); done(); }
+      catch (e) {
+        // 복사까지 막히면 주소를 선택 상태로 남겨 사람이 길게 눌러 복사하게 한다
+        btn.textContent = "주소를 길게 눌러 복사해 주세요";
+        var r = document.createRange();
+        r.selectNodeContents(document.getElementById("url"));
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      }
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+</body>
+</html>
